@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 
 namespace NetworkProtocol
 {
@@ -23,8 +19,12 @@ namespace NetworkProtocol
 
         public void Remove(int id)
         {
+            int minId = LowBoundaryId;
+
             _window.Remove(id);
-            ShiftWindow();
+
+            if(minId == id)
+                ShiftWindow();
         }
 
         private void FillWindow()
