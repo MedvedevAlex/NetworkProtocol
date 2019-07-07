@@ -4,8 +4,10 @@ namespace NetworkProtocol
 {
     public class MessageWindow
     {
-        public int HighBoundaryId => _window[_window.Count - 1];
+        public int HighBoundaryId => LowBoundaryId + _size - 1;
         public int LowBoundaryId => _window[0];
+
+        public int BlockedMessageAmount => _size - _window.Count;
 
         private readonly List<int> _window;
         private readonly int _size;
@@ -37,7 +39,7 @@ namespace NetworkProtocol
 
         private void ShiftWindow()
         {
-            _window.Add(LowBoundaryId + _size - 1);
+            _window.Add(HighBoundaryId);
         }
     }
 }
