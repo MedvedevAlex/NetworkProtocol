@@ -21,8 +21,7 @@ namespace NetworkProtocol.Tests
             //Act
 
             //Assert
-            AssertBoundariesValue(_window, 1, 15, 0);
-
+            AssertBoundariesValue(1, 15, 0);
         }
 
         [Test]
@@ -33,18 +32,7 @@ namespace NetworkProtocol.Tests
             //Act
             _window.Remove(1);
             //Assert
-            AssertBoundariesValue(_window, 2, 16, 0);
-        }
-
-        [Test]
-        public void HighBoundaryIdIsRemoved_WindowIsNotShifted()
-        {
-            //Arrange
-            
-            //Act
-            _window.Remove(15);
-            //Assert
-            AssertBoundariesValue(_window, 1, 15, 1);
+            AssertBoundariesValue(2, 16, 0);
         }
 
         [Test]
@@ -53,15 +41,67 @@ namespace NetworkProtocol.Tests
             //Arrange
 
             //Act
+            _window.Remove(15);
             _window.Remove(10);
             //Assert
-            AssertBoundariesValue(_window, 1, 15, 1);
+            AssertBoundariesValue(1, 15, 2);
         }
 
-        private void AssertBoundariesValue(MessageWindow window, int low, int high, int blocked)
+        [Test]
+        public void MessageRemovedInside_LowBoundaryRemoved_WindowIsShiftedAndTakesIntoAccountBlockedAmount()
         {
-            Assert.That(window.LowBoundaryId, Is.EqualTo(low));
-            Assert.That(window.HighBoundaryId, Is.EqualTo(high));
+            //Arrange
+
+            //Act
+            _window.Remove(10);
+            _window.Remove(1);
+            //Assert
+            AssertBoundariesValue(2, 16, 1);
+        }
+
+        [Test]
+        public void MessageRemovedInside_LowBoundaryRemovedSeveralTimes_WindowIsShiftedAndTakesIntoAccountBlockedAmount()
+        {
+            //Arrange
+
+            //Act
+            _window.Remove(2);
+            _window.Remove(3);
+            _window.Remove(4);
+
+            _window.Remove(6);
+            _window.Remove(7);
+            _window.Remove(8);
+
+            //Assert
+            AssertBoundariesValue(1, 15, 6);
+
+            _window.Remove(1);
+            AssertBoundariesValue(5, 19, 3);
+
+            _window.Remove(5);
+            AssertBoundariesValue(9, 23, 0);
+        }
+
+        [Test]
+        public void WindowIsShifted_AddedValuesContinueTheSequence()
+        {
+            //Arrange
+
+            //Act
+            for (int i = 1; i <= 15; i++)
+            {
+                _window.Remove(i);
+            }
+
+            //Assert
+            AssertBoundariesValue(16, 30, 0);
+        }
+
+        private void AssertBoundariesValue(int low, int high, int blocked)
+        {
+            Assert.That(_window.LowBoundaryId, Is.EqualTo(low));
+            Assert.That(_window.HighBoundaryId, Is.EqualTo(high));
             Assert.That(_window.BlockedMessageAmount, Is.EqualTo(blocked));
         }
     }
