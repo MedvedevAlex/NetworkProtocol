@@ -6,7 +6,6 @@ namespace NetworkProtocol
     {
         public int HighBoundaryId => LowBoundaryId + _size - 1;
         public int LowBoundaryId => _window[0];
-
         public int BlockedMessageAmount => _size - _window.Count;
 
         private readonly List<int> _window;
@@ -26,7 +25,7 @@ namespace NetworkProtocol
             _window.Remove(id);
 
             if(minId == id)
-                ShiftWindow();
+                ShiftWindow(id);
         }
 
         private void FillWindow()
@@ -37,9 +36,12 @@ namespace NetworkProtocol
             }
         }
 
-        private void ShiftWindow()
+        private void ShiftWindow(int id)
         {
-            _window.Add(HighBoundaryId);
+            for (int i = id; i < LowBoundaryId; i++)
+            {
+                _window.Add(id + _size);
+            }
         }
     }
 }
