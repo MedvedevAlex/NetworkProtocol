@@ -17,7 +17,7 @@ namespace NetworkProtocol.Tests
         public void LowAndHighBoundatiesInitiallySet()
         {
             //Arrange
-            
+
             //Act
 
             //Assert
@@ -96,6 +96,46 @@ namespace NetworkProtocol.Tests
 
             //Assert
             AssertBoundariesValue(16, 30, 0);
+        }
+
+        [Test]
+        public void AttemptToRemoveIdAboveHighBoundary_ExceptionRaises()
+        {
+            //Arrange
+
+            //Act
+
+            //Assert
+            Assert.That(() => _window.Remove(20),
+                Throws.Exception.TypeOf<MessageWindow.AttemptToRemoveIdAboveHighBoundary>()
+                .With.Message.EqualTo("high boundary id: 15, got: 20"));
+        }
+
+        [Test]
+        public void AttemptToRemoveIdUnderLowBoundary_ExceptionRaises()
+        {
+            //Arrange
+
+            //Act
+
+            //Assert
+            Assert.That(() => _window.Remove(0),
+                Throws.Exception.TypeOf<MessageWindow.AttemptToRemoveIdUnderLowBoundary>()
+                .With.Message.EqualTo("low boundary id: 1, got: 0"));
+        }
+
+        [Test]
+        public void AttemptToRemoveIdThatHasBeenAlreadyRemoved_ExceptionRaises()
+        {
+            //Arrange
+
+            //Act
+            _window.Remove(5);
+
+            //Assert
+            Assert.That(() => _window.Remove(5),
+                Throws.Exception.TypeOf<MessageWindow.AttemptToRemoveIdThatHasBeenAlreadyRemoved_ExceptionRaises>()
+                .With.Message.EqualTo("id has been already removed: 5"));
         }
 
         private void AssertBoundariesValue(int low, int high, int blocked)

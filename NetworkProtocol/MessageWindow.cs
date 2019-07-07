@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace NetworkProtocol
 {
@@ -20,11 +21,26 @@ namespace NetworkProtocol
 
         public void Remove(int id)
         {
+            if (HighBoundaryId < id)
+            {
+                throw new AttemptToRemoveIdAboveHighBoundary(HighBoundaryId, id);
+            }
+
+            if (id < LowBoundaryId)
+            {
+                throw new AttemptToRemoveIdUnderLowBoundary(LowBoundaryId, id);
+            }
+
+            if (!_window.Contains(id))
+            {
+                throw new AttemptToRemoveIdThatHasBeenAlreadyRemoved_ExceptionRaises(id);
+            }
+
             int minId = LowBoundaryId;
 
             _window.Remove(id);
 
-            if(minId == id)
+            if (minId == id)
                 ShiftWindow(id);
         }
 
@@ -42,6 +58,24 @@ namespace NetworkProtocol
             {
                 _window.Add(id + _size);
             }
+        }
+
+        public class AttemptToRemoveIdAboveHighBoundary : Exception
+        {
+            public AttemptToRemoveIdAboveHighBoundary(int high, int id)
+                : base($"high boundary id: {high}, got: {id}") { }
+        }
+
+        public class AttemptToRemoveIdUnderLowBoundary : Exception
+        {
+            public AttemptToRemoveIdUnderLowBoundary(int low, int id)
+                : base($"low boundary id: {low}, got: {id}") { }
+        }
+
+        public class AttemptToRemoveIdThatHasBeenAlreadyRemoved_ExceptionRaises : Exception
+        {
+            public AttemptToRemoveIdThatHasBeenAlreadyRemoved_ExceptionRaises(int id)
+                : base($"id has been already removed: {id}") { }
         }
     }
 }
