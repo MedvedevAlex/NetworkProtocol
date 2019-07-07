@@ -5,45 +5,64 @@ namespace NetworkProtocol.Tests
     [TestFixture]
     public class MessageWindowTests
     {
-        [TestCase(10,1,10)]
-        [TestCase(20,1,20)]
-        public void LowAndHighBoundatiesInitiallySet(int size, int low, int high)
+        private MessageWindow _window;
+
+        [SetUp]
+        public void Setup()
+        {
+            _window = new MessageWindow(15);
+        }
+
+        [Test]
+        public void LowAndHighBoundatiesInitiallySet()
         {
             //Arrange
-            MessageWindow window = new MessageWindow(size);
+            
             //Act
 
             //Assert
-            AssertBoundariesValue(window, low, high);
+            AssertBoundariesValue(_window, 1, 15, 0);
 
         }
 
-        [TestCase(15, 1, 15)]
-        public void LowBoundaryIdIsRemoved_WindowIsShifted(int size, int low, int high)
+        [Test]
+        public void LowBoundaryIdIsRemoved_WindowIsShifted()
         {
             //Arrange
-            MessageWindow window = new MessageWindow(size);
+
             //Act
-            window.Remove(1);
+            _window.Remove(1);
             //Assert
-            AssertBoundariesValue(window, 2, 16);
+            AssertBoundariesValue(_window, 2, 16, 0);
         }
 
-        [TestCase(15, 1, 15)]
-        public void HighBoundaryIdIsRemoved_WindowIsNotShifted(int size, int low, int high)
+        [Test]
+        public void HighBoundaryIdIsRemoved_WindowIsNotShifted()
         {
             //Arrange
-            MessageWindow window = new MessageWindow(size);
+            
             //Act
-            window.Remove(high);
+            _window.Remove(15);
             //Assert
-            AssertBoundariesValue(window, 1, 14);
+            AssertBoundariesValue(_window, 1, 15, 1);
         }
 
-        private void AssertBoundariesValue(MessageWindow window, int low, int high)
+        [Test]
+        public void MessageRemovedInsideWindow_BoundariesAreNotChanged()
+        {
+            //Arrange
+
+            //Act
+            _window.Remove(10);
+            //Assert
+            AssertBoundariesValue(_window, 1, 15, 1);
+        }
+
+        private void AssertBoundariesValue(MessageWindow window, int low, int high, int blocked)
         {
             Assert.That(window.LowBoundaryId, Is.EqualTo(low));
             Assert.That(window.HighBoundaryId, Is.EqualTo(high));
+            Assert.That(_window.BlockedMessageAmount, Is.EqualTo(blocked));
         }
     }
 }
